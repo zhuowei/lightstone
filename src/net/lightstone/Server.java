@@ -91,6 +91,12 @@ public final class Server {
 	private final Map<Integer, World> worlds = new HashMap<Integer, World>();
 
 
+	/** Whether the server should automatically save chunks, e.g. at shutdown. */
+
+	//Does this belong in a different class e.g. the chunk IO service or the chunk manager?
+
+	private boolean saveEnabled = true;
+
 	/**
 	 * Creates a new server.
 	 */
@@ -100,6 +106,7 @@ public final class Server {
 		worlds.put(new Integer(-1), new World(new McRegionChunkIoService(new File("world" + File.separator + "DIM-1")),
 			new SimpleNetherWorldGenerator()));
 		init();
+		Runtime.getRuntime().addShutdownHook(new ServerShutdownHandler());
 	}
 
 	/**
@@ -172,6 +179,27 @@ public final class Server {
 
 	public Map<Integer, World> getWorlds(){
 		return Collections.unmodifiableMap(worlds);
+	}
+
+	public boolean isSaveEnabled(){
+		return saveEnabled;
+	}
+
+	public void setSaveEnabled(boolean value){
+		saveEnabled = value;
+	}
+
+	private class ServerShutdownHandler extends Thread{
+		@Override
+		public void run(){
+			//Save chunks on shutdown.
+			if(saveEnabled){
+				logger.info("Saving chunks");
+				for(World w: worlds.values()){
+					w.getChunks().saveAll();
+				}
+			}
+		}
 	}
 
 }
