@@ -18,11 +18,10 @@ import net.lightstone.util.Parameter;
  */
 public abstract class Mob extends Entity {
 
-
 	/**
 	 * The mob's metadata.
 	 */
-	protected final List<Parameter<?>> metadata = new ArrayList<Parameter<?>>();
+	protected final Parameter<?>[] metadata = new Parameter<?>[Parameter.METADATA_SIZE];
 
 	/**
 	 * Creates a mob within the specified world.
@@ -63,19 +62,13 @@ public abstract class Mob extends Entity {
 		return null;
 	}
 
-	public Parameter<?> getMetadata(int index){
-		return metadata.get(index);
+	public Parameter<?> getMetadata(int index) {
+		return metadata[index];
 	}
 
-	public void setMetadata(Parameter<?> data){
-		if(data.getIndex() < metadata.size()){
-			metadata.set(data.getIndex(), data);
-		}
-		else{
-			metadata.add(data);
-		}
+	public void setMetadata(Parameter<?> data) {
+		metadata[data.getIndex()] = data;
 	}
-
 
 }
 

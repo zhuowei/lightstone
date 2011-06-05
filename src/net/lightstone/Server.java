@@ -1,5 +1,6 @@
 package net.lightstone;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.io.File;
@@ -91,11 +92,10 @@ public final class Server {
 	private final Map<Integer, World> worlds = new HashMap<Integer, World>();
 
 
-	/** Whether the server should automatically save chunks, e.g. at shutdown. */
-
-	//Does this belong in a different class e.g. the chunk IO service or the chunk manager?
-
-	private boolean saveEnabled = true;
+	/**
+	 * Whether the server should automatically save chunks, e.g. at shutdown.
+	 */
+	private boolean saveEnabled = true;	// TODO: Does this belong in a different class e.g. the chunk IO service or the chunk manager?
 
 	/**
 	 * Creates a new server.
@@ -106,18 +106,21 @@ public final class Server {
 		worlds.put(new Integer(-1), new World(new McRegionChunkIoService(new File("world" + File.separator + "DIM-1")),
 			new SimpleNetherWorldGenerator()));
 		init();
-		Runtime.getRuntime().addShutdownHook(new ServerShutdownHandler());
 	}
 
 	/**
-	 * Initializes the channel and pipeline factories.
+	 * Initializes the server.
 	 */
 	private void init() {
+		/* initialize channel and pipeline factories */
 		ChannelFactory factory = new NioServerSocketChannelFactory(executor, executor);
 		bootstrap.setFactory(factory);
 
 		ChannelPipelineFactory pipelineFactory = new MinecraftPipelineFactory(this);
 		bootstrap.setPipelineFactory(pipelineFactory);
+
+		/* add shutdown hook */
+		Runtime.getRuntime().addShutdownHook(new Thread(new ServerShutdownHandler()));
 	}
 
 	/**
@@ -181,23 +184,41 @@ public final class Server {
 		return Collections.unmodifiableMap(worlds);
 	}
 
-	public boolean isSaveEnabled(){
+	/**
+	 * Checks if saving is currently enabled.
+	 * @return {@code true} if so, {@code false} if not.
+	 */
+	public boolean isSaveEnabled() {
 		return saveEnabled;
 	}
 
-	public void setSaveEnabled(boolean value){
-		saveEnabled = value;
+	/**
+	 * Sets the saving enabled flag.
+	 * @param saveEnabled The saving enabled flag.
+	 */
+	public void setSaveEnabled(boolean saveEnabled) {
+		this.saveEnabled = saveEnabled;
 	}
 
-	private class ServerShutdownHandler extends Thread{
+	/**
+	 * A {@link Runnable} which saves chunks on shutdown.
+	 * @author Zhuowei Zhang
+	 * @author Graham Edgecombe
+	 */
+	private class ServerShutdownHandler implements Runnable {
 		@Override
-		public void run(){
-			//Save chunks on shutdown.
-			if(saveEnabled){
-				logger.info("Saving chunks");
-				for(World w: worlds.values()){
-					w.getChunks().saveAll();
+		public void run() {
+			// Save chunks on shutdown.
+			if (saveEnabled) {
+				logger.info("Saving chunks...");
+				for(World w: worlds.values()) {
+					try {
+						w.getChunks().saveAll();
+					} catch (IOException e) {
+						logger.log(Level.WARNING, "Failed to save some chunks.", e);
+					}
 				}
+				logger.info("Finished!");
 			}
 		}
 	}

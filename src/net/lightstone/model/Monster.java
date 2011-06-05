@@ -1,11 +1,7 @@
 package net.lightstone.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.lightstone.msg.Message;
 import net.lightstone.msg.SpawnMobMessage;
-import net.lightstone.util.Parameter;
 import net.lightstone.world.World;
 import net.lightstone.model.mob.ai.AI;
 import net.lightstone.model.mob.ai.DummyAI;
@@ -22,9 +18,6 @@ public final class Monster extends Mob {
 	 */
 	private final int type;
 	private final AI ai;
-
-
-
 
 	/**
 	 * Creates a new monster.
@@ -62,7 +55,7 @@ public final class Monster extends Mob {
 		int z = position.getPixelZ();
 		int yaw = rotation.getIntYaw();
 		int pitch = rotation.getIntPitch();
-		return new SpawnMobMessage(id, type, x, y, z, yaw, pitch, metadata);
+		return new SpawnMobMessage(id, type, x, y, z, yaw, pitch, metadata.clone());
 	}
 
 }
