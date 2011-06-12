@@ -14,7 +14,7 @@ import net.lightstone.net.MinecraftPipelineFactory;
 import net.lightstone.net.Session;
 import net.lightstone.net.SessionRegistry;
 import net.lightstone.task.TaskScheduler;
-import net.lightstone.world.ForestWorldGenerator;
+import net.lightstone.world.InfiniMapWorldGenerator;
 import net.lightstone.world.World;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
@@ -84,7 +84,7 @@ public final class Server {
 	/**
 	 * The world this server is managing.
 	 */
-	private final World world = new World(new McRegionChunkIoService(), new ForestWorldGenerator());
+	private final World world = new World(new McRegionChunkIoService(), new InfiniMapWorldGenerator());
 
 	/**
 	 * Whether the server should automatically save chunks, e.g. at shutdown.
